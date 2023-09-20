@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+    font-family: 'PP Neue Machina';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('~assets/fonts/PPNeueMachina-Ultrabold.eot') format('embedded-opentype'),
+        url('~assets/fonts/PPNeueMachina-Ultrabold.woff2') format('woff2'),
+        url('~assets/fonts/PPNeueMachina-Ultrabold.woff') format('woff'),
+        url('~assets/fonts/PPNeueMachina-Ultrabold.otf') format('opentype'),
+        url('~assets/fonts/PPNeueMachina-Ultrabold.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'PP Mori';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('~assets/fonts/PPMori-SemiBold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'PP Mori';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('~assets/fonts/PPMori-Regular.otf') format('opentype');
+}
+
+/* https://codepen.io/P1N2O/pen/pyBNzX */
+@keyframes "gradient" {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+/* https://codepen.io/beauhaus/pen/bpzWEb */
+@keyframes "hue" {
+  0%, 100%  { -webkit-filter: hue-rotate(0deg); }
+  50% { -webkit-filter: hue-rotate(180deg); }
+}
