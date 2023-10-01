@@ -13,7 +13,7 @@
           ESTIMATED TUTORIAL TIME: 2 HOURS
         </p>
         <h2 class="text-white font-display text-5xl mt-2">So, are you ready to learn?</h2>
-        <button type="button" class="border rounded-md px-8 py-2 font-semibold text-purple-600 bg-white font-display text-2xl mt-6 shadow-md hover:bg-slate-100 active:bg-purple-800 transition-colors">JUMP IN</button>
+        <button type="button" class="border rounded-md px-8 py-2 font-semibold text-purple-600 bg-white font-display text-2xl mt-6 shadow-md hover:bg-slate-100 active:bg-purple-800 transition-colors" @click="$router.push('/intro')">JUMP IN</button>
       </div>
     </section>
     <section id="frame1">
