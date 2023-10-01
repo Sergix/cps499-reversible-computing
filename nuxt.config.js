@@ -17,6 +17,9 @@ export default {
       { hid: 'description', name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' },
     ],
+    script: [
+      { src: 'https://code.createjs.com/1.0.0/easeljs.min.js' }
+    ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
 
@@ -24,7 +27,9 @@ export default {
   css: ['@/assets/css/main.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [],
+  plugins: [
+    '~/plugins/create.js'
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,

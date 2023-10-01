@@ -18,9 +18,5 @@
 export default {
     name: 'IntroPage',
     layout: 'tutorial',
-    mounted() {
-        this.$store.commit('setSectionTitle', 'Introduction')
-        this.$store.commit('setLessonTitle', 'Lesson 1')
-    }
 }
 </script>
