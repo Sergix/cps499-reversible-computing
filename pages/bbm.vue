@@ -72,22 +72,30 @@ const MAP_RE = [
     new Reflector(17, 14, RT),
     new Reflector(21, 14, RL),
     new Reflector(7, 16, RT),
+    new Reflector(9, 16, RT),
     new Reflector(17, 16, RT),
     new Reflector(8, 19, RT),
     new Reflector(16, 19, RT),
-    new StateBall(14, 12, "H", "V"),
     new IOPort(13, "n", "s'", PT, "red"),
     new IOPort(15, "s", "n'", PB, "yellow"),
     new IOPort(5, "e", "w", PR, "green"),
     new IOPort(7, "w'", "e'", PL, "blue"),
-    new SignalBall("s")
+    new StateBall(14, 12, "H", "V"),
+    new SignalBall("n")
 ]
 
 export default {
     name: "BBMPage",
     layout: "tutorial",
     mounted() {
+        // TODO: state ball initial placement based on initial state 
+
         const stage = new this.$createjs.Stage("canvas")
+
+        const grid = new this.$createjs.Container()
+        grid.x = grid.y = CELL_SIZE
+        stage.addChild(grid)
+
         const balls = []
         const reflectors = []
         const ioPorts = []
@@ -97,13 +105,14 @@ export default {
         // draw grid
         for (let c = 0; c <= GRID_W; c++) {
             const gridLineV = new this.$createjs.Shape()
+            // includes grid offset
             gridLineV.graphics.setStrokeStyle(1).beginStroke("black").moveTo(c * CELL_SIZE, 0).lineTo(c * CELL_SIZE, GRID_H * CELL_SIZE)
-            stage.addChild(gridLineV)
+            grid.addChild(gridLineV)
         }
         for (let r = 0; r <= GRID_H; r++) {
             const gridLineH = new this.$createjs.Shape()
             gridLineH.graphics.setStrokeStyle(1).beginStroke("black").moveTo(0, r * CELL_SIZE).lineTo(GRID_W * CELL_SIZE, r * CELL_SIZE)
-            stage.addChild(gridLineH)
+            grid.addChild(gridLineH)
         }
 
         // construct map
@@ -144,13 +153,16 @@ export default {
                 reflector.graphics.setStrokeStyle(1).beginStroke("black").drawRect(0, 0, reflector.w, reflector.h)
 
                 reflectors.push(reflector)
-                stage.addChild(reflector)
+                grid.addChild(reflector)
             } else if (obj instanceof StateBall) {
                 const stateBall = new this.$createjs.Shape()
                 
                 stateBall.x = obj.x * CELL_SIZE
                 stateBall.y = obj.y * CELL_SIZE
                 stateBall.vx = stateBall.vy = 0
+                stateBall.state = obj.initialState
+                stateBall.initialState = obj.initialState
+                stateBall.nextState = obj.nextState
                 
                 stateBallText = new this.$createjs.Text(obj.initialState, "italic 16px serif", "black")
                 stateBallText.x = obj.x * CELL_SIZE
@@ -160,8 +172,8 @@ export default {
                 stateBall.graphics.setStrokeStyle(1).beginStroke("black").drawCircle(0, 0, BALL_RADIUS).beginFill("yellow").drawCircle(0, 0, BALL_RADIUS)
                 
                 balls.push(stateBall)
-                stage.addChild(stateBall)
-                stage.addChild(stateBallText)
+                grid.addChild(stateBall)
+                grid.addChild(stateBallText)
             } else if (obj instanceof SignalBall) {
                 const signalBall = new this.$createjs.Shape()
                 const portIndex = ioPorts.findIndex((port) => port.inputName === obj.input)
@@ -179,7 +191,7 @@ export default {
                 switch (port.type) {
                     case PT:
                         signalBall.x = port.n * CELL_SIZE
-                        signalBall.y = 1
+                        signalBall.y = CELL_SIZE
                         signalBall.initialVx = 0
                         signalBall.initialVy = BALL_V
                         break
@@ -212,9 +224,12 @@ export default {
                 })
 
                 balls.push(signalBall)
-                stage.addChild(signalBall)
+                grid.addChild(signalBall)
             } else if (obj instanceof IOPort) {
                 const ioPort = new this.$createjs.Shape()
+                const ioPortInputText = new this.$createjs.Text(obj.inputName, "italic 16px serif", "black")
+                const ioPortOutputText = new this.$createjs.Text(obj.outputName, "italic 16px serif", "black")
+
 
                 ioPort.type = obj.type
                 ioPort.inputName = obj.inputName
@@ -225,28 +240,50 @@ export default {
                         ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
                         ioPort.y = 0
                         ioPort.endY = GRID_H * CELL_SIZE
+
+                        ioPortInputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortInputText.y = 0
+                        ioPortOutputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortOutputText.y = (GRID_H + 1) * CELL_SIZE + 2
                         break
                     case PL:
                         ioPort.x = 0
                         ioPort.endX = GRID_W * CELL_SIZE
                         ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
+
+                        ioPortInputText.x = 3
+                        ioPortInputText.y = ioPort.y * 2 + CELL_SIZE - 10
+                        ioPortOutputText.x = (GRID_W + 1) * CELL_SIZE + 3
+                        ioPortOutputText.y = ioPort.y * 2 + CELL_SIZE - 10
                         break
                     case PB:
                         ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
                         ioPort.y = 0
                         ioPort.endY = GRID_H * CELL_SIZE
+
+                        ioPortInputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortInputText.y = (GRID_H + 1) * CELL_SIZE + 2
+                        ioPortOutputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortOutputText.y = 0
                         break
                     case PR:
                         ioPort.x = 0
                         ioPort.endX = GRID_W * CELL_SIZE
                         ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
+
+                        ioPortInputText.x = (GRID_W + 1) * CELL_SIZE + 3
+                        ioPortInputText.y = ioPort.y * 2 + CELL_SIZE - 10
+                        ioPortOutputText.x = 3
+                        ioPortOutputText.y = ioPort.y * 2 + CELL_SIZE - 10
                         break
                         
                 }
 
                 ioPort.graphics.setStrokeStyle(3).beginStroke(obj.color).moveTo(ioPort.x, ioPort.y).lineTo(ioPort.endX, ioPort.endY)
                 ioPorts.push(ioPort)
-                stage.addChild(ioPort)
+                grid.addChild(ioPort)
+                stage.addChild(ioPortInputText)
+                stage.addChild(ioPortOutputText)
             }
         }
         
@@ -261,6 +298,31 @@ export default {
                     if (d <= ((BALL_RADIUS * 2) ** 2)) {
                         if (ball.name === "stateBall" || ball2.name === "stateBall") {
                             stateBallText.text = ""
+                        }
+
+                        // make sure state ball stops moving on second collision
+                        // swap state ball state on collision
+                        if (ball.name === "stateBall" && (ball.vx !== 0 || ball.vy !== 0)) {
+                            // swap state text
+                            if (ball.state === ball.initialState) {
+                                stateBallText.text = ball.nextState 
+                                ball.state = ball.nextState
+                            }
+                            else {
+                                stateBallText.text = ball.initialState
+                                ball.state = ball.initialState
+                            }
+                        }
+                        else if (ball2.name === "stateBall" && (ball2.vx !== 0 || ball2.vy !== 0)) {
+                            // swap state
+                            if (ball2.state === ball2.initialState) {
+                                stateBallText.text = ball2.nextState 
+                                ball2.state = ball2.nextState
+                            }
+                            else {
+                                stateBallText.text = ball2.initialState
+                                ball2.state = ball2.initialState
+                            }
                         }
 
                         // https://codepen.io/zhu1033527427/pen/qBWaBEe
@@ -286,18 +348,15 @@ export default {
                         ball2.vy = vy2 * cos + vx1 * sin;
 
                         // ensure second ball moves accordingly to avoid overlap
+                        ball.x += ball.vx;
+                        ball.y += ball.vy;
                         ball2.x += ball2.vx;
                         ball2.y += ball2.vy;
 
-                        // make sure state ball stops moving on second collision
-                        // TODO: next or initial state?
-                        if (ball.name === "stateBall" && (ball.vx > 0 || ball.vy > 0)) {
+                        if (ball.name === "stateBall" && stateBallText === "" && (ball.vx !== 0 || ball.vy !== 0)) {
                             ball.vx = ball.vy = 0
-                            stateBallText.text = "V"
-                        }
-                        if (ball2.name === "stateBall" && (ball2.vx > 0 || ball2.vy > 0)) {
+                        } else if (ball2.name === "stateBall" && stateBallText === "" && (ball2.vx !== 0 || ball2.vy !== 0)) {
                             ball2.vx = ball2.vy = 0
-                            stateBallText.text = "V"
                         }
                     }
                 }
@@ -328,12 +387,27 @@ export default {
                     }
                 }
 
-                if ((ball.x + BALL_RADIUS > stage.canvas.width
-                    || ball.x - BALL_RADIUS < 0
-                    || ball.y + BALL_RADIUS > stage.canvas.height
+                // TODO: signal ball stops at port
+                // for (const port in ioPorts) {
+                //     // find ball at port and set global state to current port
+                // }
+
+                // boundary conditions
+                if ((ball.x - BALL_RADIUS < 0
                     || ball.y - BALL_RADIUS < 0
                     || ball.x + BALL_RADIUS > GRID_W * CELL_SIZE
-                    || ball.y + BALL_RADIUS > GRID_H * CELL_SIZE ) && (ball.vx > 0 || ball.vy > 0)) {
+                    || ball.y + BALL_RADIUS > GRID_H * CELL_SIZE) && (ball.vx !== 0 || ball.vy !== 0)) {
+
+                    // reset ball so that it doesn't get "trapped" in a wall
+                    if (ball.x - BALL_RADIUS < 0)
+                        ball.x = CELL_SIZE
+                    if (ball.y - BALL_RADIUS < 0)
+                        ball.y = CELL_SIZE
+                    if (ball.x + BALL_RADIUS > GRID_W * CELL_SIZE)
+                        ball.x = GRID_W * (CELL_SIZE - 1)
+                    if (ball.y + BALL_RADIUS > GRID_H * CELL_SIZE)
+                        ball.y = GRID_H * (CELL_SIZE - 1)
+
                     ball.initialVx = -ball.vx
                     ball.initialVy = -ball.vy
                     ball.vx = ball.vy = 0
