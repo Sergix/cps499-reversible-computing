@@ -9,6 +9,7 @@
 
 <script>
 const BALL_RADIUS = Math.sqrt(2) * 10 // pixels
+const BALL_V = 5 // ball 
 const CELL_SIZE = 20 // pixels
 const GRID_W = 23 // cells
 const GRID_H = 19 // cells
@@ -16,21 +17,31 @@ const RT = "reflectorTop"
 const RB = "reflectorBottom"
 const RL = "reflectorLeft"
 const RR = "reflectorRight"
+const PL = "portLeft"
+const PR = "portRight"
+const PT = "portTop"
+const PB = "portBottom"
 
 const Reflector = function (x, y, type) {
     this.x = x
     this.y = y
     this.type = type
 }
-const StateBall = function (x, y) {
+const StateBall = function (x, y, initialState, nextState) {
     this.x = x
     this.y = y
+    this.initialState = initialState
+    this.nextState = nextState
 }
-const SignalBall = function (x, y, vx, vy) {
-    this.x = x
-    this.y = y
-    this.vx = vx
-    this.vy = vy
+const SignalBall = function (input) {
+    this.input = input
+}
+const IOPort = function (n, inputName, outputName, type, color) {
+    this.n = n
+    this.inputName = inputName
+    this.outputName = outputName
+    this.type = type
+    this.color = color
 }
 const MAP_RE = [
     new Reflector(7, 0, RB),
@@ -64,8 +75,12 @@ const MAP_RE = [
     new Reflector(17, 16, RT),
     new Reflector(8, 19, RT),
     new Reflector(16, 19, RT),
-    new StateBall(14, 12),
-    new SignalBall(15, 19, 0, -5)
+    new StateBall(14, 12, "H", "V"),
+    new IOPort(13, "n", "s'", PT, "red"),
+    new IOPort(15, "s", "n'", PB, "yellow"),
+    new IOPort(5, "e", "w", PR, "green"),
+    new IOPort(7, "w'", "e'", PL, "blue"),
+    new SignalBall("s")
 ]
 
 export default {
@@ -75,16 +90,17 @@ export default {
         const stage = new this.$createjs.Stage("canvas")
         const balls = []
         const reflectors = []
+        const ioPorts = []
 
-        const stateBallText = new this.$createjs.Text("H", "italic 16px serif", "black")
+        let stateBallText
         
         // draw grid
-        for (let c = 0; c < GRID_W; c++) {
+        for (let c = 0; c <= GRID_W; c++) {
             const gridLineV = new this.$createjs.Shape()
             gridLineV.graphics.setStrokeStyle(1).beginStroke("black").moveTo(c * CELL_SIZE, 0).lineTo(c * CELL_SIZE, GRID_H * CELL_SIZE)
             stage.addChild(gridLineV)
         }
-        for (let r = 0; r < GRID_H; r++) {
+        for (let r = 0; r <= GRID_H; r++) {
             const gridLineH = new this.$createjs.Shape()
             gridLineH.graphics.setStrokeStyle(1).beginStroke("black").moveTo(0, r * CELL_SIZE).lineTo(GRID_W * CELL_SIZE, r * CELL_SIZE)
             stage.addChild(gridLineH)
@@ -136,6 +152,7 @@ export default {
                 stateBall.y = obj.y * CELL_SIZE
                 stateBall.vx = stateBall.vy = 0
                 
+                stateBallText = new this.$createjs.Text(obj.initialState, "italic 16px serif", "black")
                 stateBallText.x = obj.x * CELL_SIZE
                 stateBallText.y = obj.y * CELL_SIZE
                 
@@ -147,19 +164,89 @@ export default {
                 stage.addChild(stateBallText)
             } else if (obj instanceof SignalBall) {
                 const signalBall = new this.$createjs.Shape()
-                
-                signalBall.x = obj.x * CELL_SIZE
-                signalBall.y = obj.y * CELL_SIZE
+                const portIndex = ioPorts.findIndex((port) => port.inputName === obj.input)
+
+                if (ioPorts.length === 0) {
+                    console.error("BBModel: No IOPorts found. Declare IOPorts before initializing the state ball, since state balls act as an input to an IOPort.")
+                    return
+                }
+                if (portIndex === -1) {
+                    console.error(`BBModel: StateBall cannot be assigned to IOPort ${obj.input}: IOPort not found`)
+                    return
+                }
+
+                const port = ioPorts[portIndex]
+                switch (port.type) {
+                    case PT:
+                        signalBall.x = port.n * CELL_SIZE
+                        signalBall.y = 1
+                        signalBall.initialVx = 0
+                        signalBall.initialVy = BALL_V
+                        break
+                    case PR:
+                        signalBall.x = (GRID_W - 1) * CELL_SIZE
+                        signalBall.y = port.n * CELL_SIZE
+                        signalBall.initialVx = -BALL_V
+                        signalBall.initialVy = 0
+                        break
+                    case PB:
+                        signalBall.x = port.n * CELL_SIZE
+                        signalBall.y = (GRID_H - 1) * CELL_SIZE
+                        signalBall.initialVx = 0
+                        signalBall.initialVy = -BALL_V
+                        break
+                    case PL:
+                        signalBall.x = 1
+                        signalBall.y = port.n * CELL_SIZE
+                        signalBall.initialVx = BALL_V
+                        signalBall.initialVy = 0
+                        break
+                }
+
+                signalBall.name = "signalBall"
                 signalBall.vx = signalBall.vy = 0
-                
                 signalBall.graphics.setStrokeStyle(1).beginStroke("black").drawCircle(0, 0, BALL_RADIUS).beginFill("green").drawCircle(0, 0, BALL_RADIUS)
                 signalBall.addEventListener("click", (event) => {
-                    signalBall.vx = obj.vx
-                    signalBall.vy = obj.vy
+                    signalBall.vx = signalBall.initialVx
+                    signalBall.vy = signalBall.initialVy
                 })
 
                 balls.push(signalBall)
                 stage.addChild(signalBall)
+            } else if (obj instanceof IOPort) {
+                const ioPort = new this.$createjs.Shape()
+
+                ioPort.type = obj.type
+                ioPort.inputName = obj.inputName
+                ioPort.n = obj.n
+
+                switch (obj.type) {
+                    case PT:
+                        ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
+                        ioPort.y = 0
+                        ioPort.endY = GRID_H * CELL_SIZE
+                        break
+                    case PL:
+                        ioPort.x = 0
+                        ioPort.endX = GRID_W * CELL_SIZE
+                        ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
+                        break
+                    case PB:
+                        ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
+                        ioPort.y = 0
+                        ioPort.endY = GRID_H * CELL_SIZE
+                        break
+                    case PR:
+                        ioPort.x = 0
+                        ioPort.endX = GRID_W * CELL_SIZE
+                        ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
+                        break
+                        
+                }
+
+                ioPort.graphics.setStrokeStyle(3).beginStroke(obj.color).moveTo(ioPort.x, ioPort.y).lineTo(ioPort.endX, ioPort.endY)
+                ioPorts.push(ioPort)
+                stage.addChild(ioPort)
             }
         }
         
@@ -173,33 +260,8 @@ export default {
                     
                     if (d <= ((BALL_RADIUS * 2) ** 2)) {
                         if (ball.name === "stateBall" || ball2.name === "stateBall") {
-                            stateBallText.text = "V"
+                            stateBallText.text = ""
                         }
-
-                        // collision resolution
-                        // const tangX = ball2.y - ball.y
-                        // const tangY = -(ball2.x - ball.x)
-
-                        // const tangMag = Math.sqrt((tangX ** 2) + (tangY ** 2))
-
-                        // const normTangX = tangX / tangMag
-                        // const normTangY = tangY / tangMag
-
-                        // const relVx = ball2.vx - ball.vx
-                        // const relVy = ball2.vy - ball.vy
-
-                        // const length = (relVx * normTangX) + (relVy * normTangY)
-
-                        // const vComponentX = normTangX * length
-                        // const vComponentY = normTangY * length
-
-                        // const vComponentPX = relVx - vComponentX
-                        // const vComponentPY = relVy - vComponentY
-                        
-                        // ball.vx = vComponentPX
-                        // ball.vy = vComponentPY
-                        // ball2.vx = -vComponentPX
-                        // ball2.vy = -vComponentPY
 
                         // https://codepen.io/zhu1033527427/pen/qBWaBEe
                         const dx = ball2.x - ball.x;
@@ -228,12 +290,14 @@ export default {
                         ball2.y += ball2.vy;
 
                         // make sure state ball stops moving on second collision
-                        // TODO
+                        // TODO: next or initial state?
                         if (ball.name === "stateBall" && (ball.vx > 0 || ball.vy > 0)) {
                             ball.vx = ball.vy = 0
+                            stateBallText.text = "V"
                         }
                         if (ball2.name === "stateBall" && (ball2.vx > 0 || ball2.vy > 0)) {
                             ball2.vx = ball2.vy = 0
+                            stateBallText.text = "V"
                         }
                     }
                 }
@@ -264,18 +328,21 @@ export default {
                     }
                 }
 
-                if (ball.x + BALL_RADIUS > stage.canvas.width
-                    || ball.x - BALL_RADIUS < 0) {
-                    ball.vx = -ball.vx
-                }
-                if (ball.y + BALL_RADIUS > stage.canvas.height
-                    || ball.y - BALL_RADIUS < 0) {
-                        ball.vy = -ball.vy
+                if ((ball.x + BALL_RADIUS > stage.canvas.width
+                    || ball.x - BALL_RADIUS < 0
+                    || ball.y + BALL_RADIUS > stage.canvas.height
+                    || ball.y - BALL_RADIUS < 0
+                    || ball.x + BALL_RADIUS > GRID_W * CELL_SIZE
+                    || ball.y + BALL_RADIUS > GRID_H * CELL_SIZE ) && (ball.vx > 0 || ball.vy > 0)) {
+                    ball.initialVx = -ball.vx
+                    ball.initialVy = -ball.vy
+                    ball.vx = ball.vy = 0
                 }
 
                 ball.x += ball.vx
                 ball.y += ball.vy
 
+                // update state ball text position
                 if (ball.name === "stateBall") {
                     stateBallText.x = 1 + ball.x - BALL_RADIUS / 2
                     stateBallText.y = ball.y - BALL_RADIUS / 2
