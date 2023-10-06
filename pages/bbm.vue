@@ -47,55 +47,83 @@ const IOPort = function (n, inputName, outputName, type, color) {
     this.type = type
     this.color = color
 }
+// const MAP_RE = [
+//     new Reflector(7, 0, RB),
+//     new Reflector(9, 0, RB),
+//     new Reflector(6, 3, RB),
+//     new Reflector(6, 3, RR),
+//     new Reflector(10, 3, RL),
+//     new Reflector(10, 3, RB),
+//     new Reflector(14, 3, RB),
+//     new Reflector(1, 6, RR),
+//     new Reflector(5, 8, RL),
+//     new Reflector(21, 8, RB),
+//     new Reflector(0, 9, RR),
+//     new Reflector(2, 9, RR),
+//     new Reflector(6, 9, RR),
+//     new Reflector(10, 9, RL),
+//     new Reflector(10, 9, RB),
+//     new Reflector(10, 9, RT),
+//     new Reflector(12, 9, RB),
+//     new Reflector(17, 10, RL),
+//     new Reflector(17, 10, RB),
+//     new Reflector(23, 10, RL),
+//     new Reflector(6, 11, RR),
+//     new Reflector(20, 11, RT),
+//     new Reflector(20, 11, RL),
+//     new Reflector(1, 12, RR),
+//     new Reflector(8, 13, RT),
+//     new Reflector(17, 14, RT),
+//     new Reflector(21, 14, RL),
+//     new Reflector(7, 16, RT),
+//     new Reflector(9, 16, RT),
+//     new Reflector(17, 16, RT),
+//     new Reflector(8, 19, RT),
+//     new Reflector(16, 19, RT),
+//     new IOPort(13, "n", "s'", PT, "red"),
+//     new IOPort(15, "s", "n'", PB, "yellow"),
+//     new IOPort(5, "e", "w", PR, "green"),
+//     new IOPort(7, "w'", "e'", PL, "blue"),
+// ]
+
+// const STATE_TRANSITIONS = {
+//     "H": {
+//         x: 14,
+//         y: 12,
+//         nextState: "V"
+//     },
+//     "V": {
+//         x: 8,
+//         y: 6,
+//         nextState: "H"
+//     }
+// }
+
 const MAP_RE = [
-    new Reflector(7, 0, RB),
-    new Reflector(9, 0, RB),
-    new Reflector(6, 3, RB),
-    new Reflector(6, 3, RR),
-    new Reflector(10, 3, RL),
-    new Reflector(10, 3, RB),
-    new Reflector(14, 3, RB),
-    new Reflector(1, 6, RR),
-    new Reflector(5, 8, RL),
-    new Reflector(21, 8, RB),
-    new Reflector(0, 9, RR),
-    new Reflector(2, 9, RR),
-    new Reflector(6, 9, RR),
-    new Reflector(10, 9, RL),
-    new Reflector(10, 9, RB),
-    new Reflector(10, 9, RT),
-    new Reflector(12, 9, RB),
-    new Reflector(17, 10, RL),
-    new Reflector(17, 10, RB),
-    new Reflector(23, 10, RL),
-    new Reflector(6, 11, RR),
-    new Reflector(20, 11, RT),
-    new Reflector(20, 11, RL),
-    new Reflector(1, 12, RR),
-    new Reflector(8, 13, RT),
-    new Reflector(17, 14, RT),
-    new Reflector(21, 14, RL),
-    new Reflector(7, 16, RT),
-    new Reflector(9, 16, RT),
-    new Reflector(17, 16, RT),
-    new Reflector(8, 19, RT),
-    new Reflector(16, 19, RT),
-    new IOPort(13, "n", "s'", PT, "red"),
-    new IOPort(15, "s", "n'", PB, "yellow"),
-    new IOPort(5, "e", "w", PR, "green"),
-    new IOPort(7, "w'", "e'", PL, "blue"),
+    new Reflector(6, 0, RB),
+    new Reflector(6, 2, RB),
+    new Reflector(8, 4, RL),
+    new Reflector(10, 4, RL),
+    new Reflector(1, 5, RR),
+    new Reflector(5, 5, RR),
+    new Reflector(1, 9, RR),
+    new Reflector(9, 9, RL),
+    new Reflector(5, 11, RT),
+    new Reflector(5, 13, RT),
+    new IOPort(7, "b", "a", PL, "blue"),
+    new IOPort(10, "a", "b", PL, "red")
 ]
 
 const STATE_TRANSITIONS = {
-    "H": {
-        x: 14,
-        y: 12,
-        nextState: "V"
-    },
-    "V": {
-        x: 8,
+    "0": {
+        x: 3,
         y: 6,
-        nextState: "H"
+        nextState: "1"
+    },
+    "1": {
+        x: 7,
+        y: 6,
+        nextState: "0"
     }
 }
 
@@ -111,7 +139,7 @@ export default {
     },
     mounted() {
         this.stage = new this.$createjs.Stage("canvas")
-        this.construct()
+        // this.construct()
     },
     methods: {
         construct() {
@@ -331,6 +359,10 @@ export default {
             
             this.$createjs.Ticker.addEventListener("tick", () => {
                 for (const ball of balls) {
+
+                    ball.x += ball.vx
+                    ball.y += ball.vy
+
                     for (const ball2 of balls) {
                         if (ball === ball2) continue
 
@@ -338,6 +370,7 @@ export default {
                         const d = ((ball2.x - ball.x) ** 2) + ((ball2.y - ball.y) ** 2)
                         
                         if (d <= ((BALL_RADIUS * 2) ** 2)) {
+
                             if (ball.name === "stateBall" || ball2.name === "stateBall") {
                                 stateBallText.text = ""
                             }
@@ -356,6 +389,11 @@ export default {
                             }
 
                             // https://codepen.io/zhu1033527427/pen/qBWaBEe
+
+                            // TODO: manually compute right-angle collisions since ball can only move in one of 8 directions:
+                            // - NSEW: (+-5, 0) or (0, +-5)
+                            // - NE, NW, SE, SW: (+-2.5, +-2.5)
+
                             const dx = ball2.x - ball.x;
                             const dy = ball2.y - ball.y;
                             const angle = Math.atan2(dy, dx);
@@ -376,6 +414,23 @@ export default {
                             ball.vy = vy1 * cos + vx2 * sin;
                             ball2.vx = vx1 * cos - vy2 * sin;
                             ball2.vy = vy2 * cos + vx1 * sin;
+
+                            // TODO: REMOVE after right-angle collisions are completed
+                            // floor very small velocities, define epsilon = 2 since all velocities *should* be >= +-2.5
+                            if (Math.abs(ball.vx) < 2) ball.vx = 0
+                            if (Math.abs(ball.vy) < 2) ball.vy = 0
+                            if (Math.abs(ball2.vx) < 2) ball2.vy = 0
+                            if (Math.abs(ball2.vy) < 2) ball2.vy = 0
+                            // clamp values with an epsilon < .5 for non-straight velocities
+                            if (Math.abs(ball.vx - 2.5) < 0.5) ball.vx = 2.5;
+                            if (Math.abs(ball.vx - (-2.5)) < 0.5) ball.vx = -2.5;
+                            if (Math.abs(ball.vy - 2.5) < 0.5) ball.vy = 2.5;
+                            if (Math.abs(ball.vy - (-2.5)) < 0.5) ball.vy = -2.5;
+                            if (Math.abs(ball2.vx - 2.5) < 0.5) ball2.vx = 2.5;
+                            if (Math.abs(ball2.vx - (-2.5)) < 0.5) ball2.vx = -2.5;
+                            if (Math.abs(ball2.vy - 2.5) < 0.5) ball2.vy = 2.5;
+                            if (Math.abs(ball2.vy - (-2.5)) < 0.5) ball2.vy = -2.5;
+
 
                             // ensure second ball moves accordingly to avoid overlap
                             ball.x += ball.vx;
@@ -433,13 +488,12 @@ export default {
                         if (ball.y + BALL_RADIUS > GRID_H * CELL_SIZE)
                             ball.y = GRID_H * (CELL_SIZE - 1)
 
+                        // ball.initialVx = ball.vx > 0 ? -ball.initialVx
+                        // ball.initialVy = -ball.initialVy
                         ball.initialVx = -ball.vx
                         ball.initialVy = -ball.vy
                         ball.vx = ball.vy = 0
                     }
-
-                    ball.x += ball.vx
-                    ball.y += ball.vy
 
                     // update state ball text position
                     if (ball.name === "stateBall") {
