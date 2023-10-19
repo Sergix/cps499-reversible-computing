@@ -1,15 +1,73 @@
 <template>
     <main>
         <section>
-            <p>BBM Model simulation</p>
-            <canvas id="canvas" width="500" height="500" class="border border-black"></canvas>
-            <form class="flex flex-col max-w-xs" @submit.prevent="">
-                <label for="initialState">Initial State</label>
-                <input v-model="initialState" class="border" type="text" name="initialState">
-                <label for="input">Input</label>
-                <input v-model="input" class="border" type="text" name="input">
-                <button class="border rounded-sm px-4 py-2 bg-violet-800 text-white hover:bg-violet-700 active:bg-violet-900" @click="construct">Construct</button>
-            </form>
+            <h3>Can you physically build a reversible circuit?</h3>
+            <p>We've now seen what makes a reversible circuit <i>reversible</i>, but how can we actually build a physical reversible circuit? First, it might be helpful to come up with an idealized model so that we can see how a reversible computational model might work in theory. The Billiard Ball Model, or BBM, of reversible computation is just that.</p>
+            <h4>The Billiard Ball Model (BBM)</h4>
+            <p>BBM simulates a reversible logic element using <i>billiard balls</i> and fixed <i>reflectors</i> on a flat surface, where all collisions are perfectly elastic and at right angles. [Morita]</p>
+            
+            <h4>How is BBM reversible?</h4>
+            <p>The Billiard Ball Model <i>physically simulates the computation of a reversible logic element in an ideal "conservative-logic network" [Fredken and Tiffoli]</i>. That's a bit a of a mouthful, so let's break it down:</p>
+            <ul>
+                <li><i>model</i>: we want to represent how a reversible circuit could work, so our model needs to work within the constraints of reversible computing</li>
+                <li><i>physically simulates</i>: we want to build our model to potentially be built in real life</li>
+                <li><i>reversible logic element</i>: as in the previous section, we want to model how a reversible logic element (circuit) could work</li>
+                <li><i>conservative-logic network</i>: as in the previous section, it should apply the principles of conservative logic by preserving the amount of information before and after the computation</li>
+            </ul>
+            <ul></ul>
+        </section>
+        <section>
+            <h3>BBM Model simulation</h3>
+            <h4>Reversible logic element with 1 bit of memory</h4>
+            <div class="flex flex-row my-4">
+                <div>
+                    <form class="flex flex-col mb-4 border p-4 border-neutral-500" @submit.prevent="">
+                        <fieldset class="flex flex-row">
+                            <legend class="font-bold mb-2">Initial Conditions</legend>
+                            <div>
+                                <label for="initialState">Initial State</label>
+                                <select v-model="initialState" name="initialState">
+                                    <option v-for="state in Object.keys(state_transitions)" :key="state">{{ state }}</option>
+                                </select>
+                            </div>
+                            <div class="ml-8">
+                                <label for="input">Input</label>
+                                <select v-model="input" name="input">
+                                    <option v-for="port in ports" :key="port.inputName">{{  port.inputName }}</option>
+                                </select>
+                            </div>
+                        </fieldset>
+                        <button  @click="construct">Construct</button>
+                    </form>
+                    <canvas id="canvas" width="500" height="420" class="border border-neutral-500"></canvas>
+                </div>
+
+                <div class="ml-4">
+                    <h4>Objects</h4>
+                    <ul>
+                        <li v-for="reflector in reflectors" :key="reflector" class="my-2 border border-neutral-400 rounded-full pr-2">
+                            <span class="text-white bg-black rounded-full px-2 py-2">Reflector</span>
+                            <span class="font-mono ml-2">({{ reflector.x }}, {{ reflector.y}})</span>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li v-for="port in ports" :key="port" class="my-2 border border-neutral-400 rounded-full pr-2">
+                            <span class="text-white rounded-full px-2 py-2 bg-blue-700">I/O Port</span>
+                            <span class="font-mono ml-2">{{ port.inputName }} -> {{ port.outputName }}</span>
+                        </li>
+                    </ul>
+                    <h4>State Transitions</h4>
+                    <ul>
+                        <li v-for="(transition, state) in state_transitions" :key="transition">
+                            <span class="font-mono">{{ state }} -> {{ transition.nextState }}</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4></h4>
+                </div>
+            </div>
         </section>
     </main>
 </template>
@@ -99,34 +157,6 @@ const IOPort = function (n, inputName, outputName, type, color) {
 //     }
 // }
 
-const MAP_RE = [
-    new Reflector(6, 0, RB),
-    new Reflector(6, 2, RB),
-    new Reflector(8, 4, RL),
-    new Reflector(10, 4, RL),
-    new Reflector(1, 5, RR),
-    new Reflector(5, 5, RR),
-    new Reflector(1, 9, RR),
-    new Reflector(9, 9, RL),
-    new Reflector(5, 11, RT),
-    new Reflector(5, 13, RT),
-    new IOPort(7, "b", "a", PL, "blue"),
-    new IOPort(10, "a", "b", PL, "red")
-]
-
-const STATE_TRANSITIONS = {
-    "0": {
-        x: 3,
-        y: 6,
-        nextState: "1"
-    },
-    "1": {
-        x: 7,
-        y: 6,
-        nextState: "0"
-    }
-}
-
 export default {
     name: "BBMPage",
     layout: "tutorial",
@@ -134,7 +164,35 @@ export default {
         return {
             initialState: 'H',
             input: 'n',
-            stage: null
+            stage: null,
+            reflectors: [
+                new Reflector(6, 0, RB),
+                new Reflector(6, 2, RB),
+                new Reflector(8, 4, RL),
+                new Reflector(10, 4, RL),
+                new Reflector(1, 5, RR),
+                new Reflector(5, 5, RR),
+                new Reflector(1, 9, RR),
+                new Reflector(9, 9, RL),
+                new Reflector(5, 11, RT),
+                new Reflector(5, 13, RT),
+            ],
+            ports: [
+                new IOPort(7, "b", "b'", PL, "blue"),
+                new IOPort(10, "a", "a'", PL, "red")
+            ],
+            state_transitions: {
+                "0": {
+                    x: 3,
+                    y: 6,
+                    nextState: "1"
+                },
+                "1": {
+                    x: 7,
+                    y: 6,
+                    nextState: "0"
+                }
+            }
         }
     },
     mounted() {
@@ -171,8 +229,7 @@ export default {
             }
 
             // construct map
-            for (const obj of MAP_RE) {
-                if (obj instanceof Reflector) {
+            for (const obj of this.reflectors) {
                     const reflector = new this.$createjs.Shape()
                     
                     reflector.x = obj.x * CELL_SIZE
@@ -209,66 +266,66 @@ export default {
 
                     reflectors.push(reflector)
                     grid.addChild(reflector)
-                } else if (obj instanceof IOPort) {
-                    const ioPort = new this.$createjs.Shape()
-                    const ioPortInputText = new this.$createjs.Text(obj.inputName, "italic 16px serif", "black")
-                    const ioPortOutputText = new this.$createjs.Text(obj.outputName, "italic 16px serif", "black")
+            }
+            for (const obj of this.ports) {
+                const ioPort = new this.$createjs.Shape()
+                const ioPortInputText = new this.$createjs.Text(obj.inputName, "italic 16px serif", "black")
+                const ioPortOutputText = new this.$createjs.Text(obj.outputName, "italic 16px serif", "black")
 
 
-                    ioPort.type = obj.type
-                    ioPort.inputName = obj.inputName
-                    ioPort.n = obj.n
+                ioPort.type = obj.type
+                ioPort.inputName = obj.inputName
+                ioPort.n = obj.n
 
-                    switch (obj.type) {
-                        case PT:
-                            ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
-                            ioPort.y = 0
-                            ioPort.endY = GRID_H * CELL_SIZE
+                switch (obj.type) {
+                    case PT:
+                        ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
+                        ioPort.y = 0
+                        ioPort.endY = GRID_H * CELL_SIZE
 
-                            ioPortInputText.x = ioPort.x * 2 + CELL_SIZE - 3
-                            ioPortInputText.y = 0
-                            ioPortOutputText.x = ioPort.x * 2 + CELL_SIZE - 3
-                            ioPortOutputText.y = (GRID_H + 1) * CELL_SIZE + 2
-                            break
-                        case PL:
-                            ioPort.x = 0
-                            ioPort.endX = GRID_W * CELL_SIZE
-                            ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
+                        ioPortInputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortInputText.y = 0
+                        ioPortOutputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortOutputText.y = (GRID_H + 1) * CELL_SIZE + 2
+                        break
+                    case PL:
+                        ioPort.x = 0
+                        ioPort.endX = GRID_W * CELL_SIZE
+                        ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
 
-                            ioPortInputText.x = 3
-                            ioPortInputText.y = ioPort.y * 2 + CELL_SIZE - 10
-                            ioPortOutputText.x = (GRID_W + 1) * CELL_SIZE + 3
-                            ioPortOutputText.y = ioPort.y * 2 + CELL_SIZE - 10
-                            break
-                        case PB:
-                            ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
-                            ioPort.y = 0
-                            ioPort.endY = GRID_H * CELL_SIZE
+                        ioPortInputText.x = 3
+                        ioPortInputText.y = ioPort.y * 2 + CELL_SIZE - 10
+                        ioPortOutputText.x = (GRID_W + 1) * CELL_SIZE + 3
+                        ioPortOutputText.y = ioPort.y * 2 + CELL_SIZE - 10
+                        break
+                    case PB:
+                        ioPort.x = ioPort.endX = (obj.n * CELL_SIZE / 2)
+                        ioPort.y = 0
+                        ioPort.endY = GRID_H * CELL_SIZE
 
-                            ioPortInputText.x = ioPort.x * 2 + CELL_SIZE - 3
-                            ioPortInputText.y = (GRID_H + 1) * CELL_SIZE + 2
-                            ioPortOutputText.x = ioPort.x * 2 + CELL_SIZE - 3
-                            ioPortOutputText.y = 0
-                            break
-                        case PR:
-                            ioPort.x = 0
-                            ioPort.endX = GRID_W * CELL_SIZE
-                            ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
+                        ioPortInputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortInputText.y = (GRID_H + 1) * CELL_SIZE + 2
+                        ioPortOutputText.x = ioPort.x * 2 + CELL_SIZE - 3
+                        ioPortOutputText.y = 0
+                        break
+                    case PR:
+                        ioPort.x = 0
+                        ioPort.endX = GRID_W * CELL_SIZE
+                        ioPort.y = ioPort.endY = (obj.n * CELL_SIZE / 2)
 
-                            ioPortInputText.x = (GRID_W + 1) * CELL_SIZE + 3
-                            ioPortInputText.y = ioPort.y * 2 + CELL_SIZE - 10
-                            ioPortOutputText.x = 3
-                            ioPortOutputText.y = ioPort.y * 2 + CELL_SIZE - 10
-                            break
-                            
-                    }
-
-                    ioPort.graphics.setStrokeStyle(3).beginStroke(obj.color).moveTo(ioPort.x, ioPort.y).lineTo(ioPort.endX, ioPort.endY)
-                    ioPorts.push(ioPort)
-                    grid.addChild(ioPort)
-                    this.stage.addChild(ioPortInputText)
-                    this.stage.addChild(ioPortOutputText)
+                        ioPortInputText.x = (GRID_W + 1) * CELL_SIZE + 3
+                        ioPortInputText.y = ioPort.y * 2 + CELL_SIZE - 10
+                        ioPortOutputText.x = 3
+                        ioPortOutputText.y = ioPort.y * 2 + CELL_SIZE - 10
+                        break
+                        
                 }
+
+                ioPort.graphics.setStrokeStyle(3).beginStroke(obj.color).moveTo(ioPort.x, ioPort.y).lineTo(ioPort.endX, ioPort.endY)
+                ioPorts.push(ioPort)
+                grid.addChild(ioPort)
+                this.stage.addChild(ioPortInputText)
+                this.stage.addChild(ioPortOutputText)
             }
 
             // state ball
@@ -276,9 +333,8 @@ export default {
                 const obj = new StateBall(this.initialState)
                 const stateBall = new this.$createjs.Shape()
 
-                console.log(STATE_TRANSITIONS, obj.initialState)
 
-                const state = STATE_TRANSITIONS[obj.initialState]
+                const state = this.state_transitions[obj.initialState]
 
                 if (state == null) {
                     console.error(`BBModel: ${obj.initialState} not found in list of state transitions`)
@@ -377,13 +433,14 @@ export default {
 
                             // make sure state ball stops moving on second collision
                             // swap state ball state on collision
+                            // TODO: not correctly swapping on reverse computation
                             if (ball.name === "stateBall" && (ball.vx !== 0 || ball.vy !== 0)) {
-                                const nextState = STATE_TRANSITIONS[ball.state].nextState
+                                const nextState = this.state_transitions[ball.state].nextState
                                 stateBallText.text = nextState
                                 ball.state = nextState
                             }
                             else if (ball2.name === "stateBall" && (ball2.vx !== 0 || ball2.vy !== 0)) {
-                                const nextState = STATE_TRANSITIONS[ball2.state].nextState
+                                const nextState = this.state_transitions[ball2.state].nextState
                                 stateBallText.text = nextState
                                 ball2.state = nextState
                             }
