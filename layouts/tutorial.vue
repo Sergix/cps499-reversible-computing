@@ -22,7 +22,7 @@
                 </ul>
             </transition>
         </aside>
-        <Nuxt class="tutorial pt-64"/>
+        <Nuxt class="tutorial"/>
     </div>
 </template>
 
@@ -72,11 +72,6 @@ export default {
     width: 16em;
 }
 
-.tutorial section {
-    @apply border border-neutral-900 rounded-lg p-8;
-    @apply my-2;
-}
-
 .tutorial h3 {
     @apply font-display text-2xl;
 }
@@ -108,6 +103,10 @@ export default {
 
 .tutorial button {
     @apply border rounded-md px-4 py-2 mt-4 bg-violet-800 text-white hover:bg-violet-700 active:bg-violet-900;
+}
+
+.tutorial table td, .tutorial table th {
+    @apply border border-black text-center px-4;
 }
 
 /* from https://v2.vuejs.org/v2/guide/transitions#CSS-Transitions */

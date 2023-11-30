@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary-color: rgb(91 33 182);
+  --secondary-color: rgb(109 40 217);
+}
+
 @font-face {
     font-family: 'PP Neue Machina';
     font-style: normal;
@@ -47,4 +52,15 @@
 @keyframes "hue" {
   0%, 100%  { -webkit-filter: hue-rotate(0deg); }
   50% { -webkit-filter: hue-rotate(180deg); }
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+.highlighted {
+  @apply p-1 bg-yellow-300;
 }

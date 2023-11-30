@@ -1,24 +1,37 @@
 <template>
-    <main>
-        <section>
-            <h3>Can you physically build a reversible circuit?</h3>
-            <p>We've now seen what makes a reversible circuit <i>reversible</i>, but how can we actually build a physical reversible circuit? First, it might be helpful to come up with an idealized model so that we can see how a reversible computational model might work in theory. The Billiard Ball Model, or BBM, of reversible computation is just that.</p>
+    <Lesson :num-sections="2">
+        <template #1="{ next }">
+            <h3>Can you <i>physically</i> build a reversible circuit?</h3>
+            <p>First, it would be helpful to come up with a model to see how a reversible computational model might be built in practice. The <b>Billiard Ball Model</b>, or BBM, is a good way of doing so.</p>
             <h4>The Billiard Ball Model (BBM)</h4>
             <p>BBM simulates a reversible logic element using <i>billiard balls</i> and fixed <i>reflectors</i> on a flat surface, where all collisions are perfectly elastic and at right angles. [Morita]</p>
             
             <h4>How is BBM reversible?</h4>
-            <p>The Billiard Ball Model <i>physically simulates the computation of a reversible logic element in an ideal "conservative-logic network" [Fredken and Tiffoli]</i>. That's a bit a of a mouthful, so let's break it down:</p>
+            <p>The Billiard Ball Model <i>physically simulates the computation of a reversible logic element in an ideal "conservative-logic network" [Fredken and Tiffoli]</i>. That's a bit a of a mouthful, so let's first break down the terminology before we show how BBM actually works:</p>
             <ul>
-                <li><i>model</i>: we want to represent how a reversible circuit could work, so our model needs to work within the constraints of reversible computing</li>
-                <li><i>physically simulates</i>: we want to build our model to potentially be built in real life</li>
-                <li><i>reversible logic element</i>: as in the previous section, we want to model how a reversible logic element (circuit) could work</li>
-                <li><i>conservative-logic network</i>: as in the previous section, it should apply the principles of conservative logic by preserving the amount of information before and after the computation</li>
+                <li class="mt-2">
+                    <i>model</i>: we want to represent how a reversible circuit could work, so our model needs to work within the constraints of reversible computing
+                    <p>→ BBM simulates a reversible circuit, and can be used to simulate any reversible circuit</p>
+                </li>
+                <li class="mt-2">
+                    <i>physically simulates</i>: we want to build our model to potentially be built in real life
+                    <p>→ BBM uses reversible logic in a (ideal) physical model</p>
+                </li>
+                <li class="mt-2">
+                    <i>reversible logic element</i>: as in the previous section, we want to model how a reversible logic element (circuit) works
+                    <p>→ BBM itself is reversible</p>
+                </li>
+                <li class="mt-2">
+                    <i>conservative-logic network</i>: as in the previous section, it should apply the principles of conservative (reversible) logic by preserving the amount of information before and after the computation
+                    <p>→ BBM preserves the amount of information used in its process</p>
+                </li>
             </ul>
-            <ul></ul>
-        </section>
-        <section>
-            <h3>BBM Model simulation</h3>
-            <h4>Reversible logic element with 1 bit of memory</h4>
+
+            <button @click="next">NEXT</button>
+        </template>
+        <template #2>
+            <h3>BBM Simulation</h3>
+            <h4>CNOT with 1 bit of memory</h4>
             <div class="flex flex-row my-4">
                 <div>
                     <form class="flex flex-col mb-4 border p-4 border-neutral-500" @submit.prevent="">
@@ -33,43 +46,91 @@
                             <div class="ml-8">
                                 <label for="input">Input</label>
                                 <select v-model="input" name="input">
-                                    <option v-for="port in ports" :key="port.inputName">{{  port.inputName }}</option>
+                                    <option v-for="port in ports" :key="port.inputName">{{ port.inputName }}</option>
                                 </select>
                             </div>
                         </fieldset>
-                        <button  @click="construct">Construct</button>
+                        <button @click="construct">Construct</button>
                     </form>
+                    <p :v-show="stage" class="text-sm italic">Click the green signal ball to start the computation.</p>
                     <canvas id="canvas" width="500" height="420" class="border border-neutral-500"></canvas>
                 </div>
 
                 <div class="ml-4">
                     <h4>Objects</h4>
                     <ul>
-                        <li v-for="reflector in reflectors" :key="reflector" class="my-2 border border-neutral-400 rounded-full pr-2">
+                        <li v-for="reflector in reflectors" :key="`${reflector.x},${reflector.y}`" class="my-2 border border-neutral-400 rounded-full pr-2">
                             <span class="text-white bg-black rounded-full px-2 py-2">Reflector</span>
                             <span class="font-mono ml-2">({{ reflector.x }}, {{ reflector.y}})</span>
                         </li>
                     </ul>
                     <ul>
-                        <li v-for="port in ports" :key="port" class="my-2 border border-neutral-400 rounded-full pr-2">
+                        <li v-for="port in ports" :key="port.inputName" class="my-2 border border-neutral-400 rounded-full pr-2">
                             <span class="text-white rounded-full px-2 py-2 bg-blue-700">I/O Port</span>
                             <span class="font-mono ml-2">{{ port.inputName }} -> {{ port.outputName }}</span>
                         </li>
                     </ul>
                     <h4>State Transitions</h4>
                     <ul>
-                        <li v-for="(transition, state) in state_transitions" :key="transition">
+                        <li v-for="(transition, state) in state_transitions" :key="state">
                             <span class="font-mono">{{ state }} -> {{ transition.nextState }}</span>
                         </li>
                     </ul>
                 </div>
 
-                <div>
-                    <h4></h4>
-                </div>
             </div>
-        </section>
-    </main>
+            <div>
+                <h4>How does it work?</h4>
+                <p>The <b class="text-green-700">green</b> ball is the <b class="text-green-700">signal ball</b>, and the <b class="text-yellow-600">yellow ball</b> is the <b class="text-yellow-600">state ball</b>. Each <b>highlighted line</b> corresponds to a port that the <b class="text-green-700">signal ball</b> can be placed at. The port acts as an input and output for the computation: the <b class="text-green-700">signal ball's</b> initial location is the input, and the final location is the output.</p>
+                <p>The balls bounce off reflectors. They reflect the balls at perfect right angles, and each collision is perfectly elastic: the ball does not lose its momentum.</p>
+                <p>When you construct the model, the <b class="text-yellow-600">state ball</b> is set to one of the initial states, and the <b class="text-green-700">signal ball</b> is placed at the selected input port.</p>
+                <p>The computation starts by sending the <b class="text-green-700">signal ball</b> down the selected input port line. The <b class="text-green-700">signal ball</b> eventually collides with the <b class="text-yellow-600">state ball</b>. The <b class="text-green-700">signal ball</b> eventually collides with the <b class="text-yellow-600">state ball</b> again, stopping the <b class="text-yellow-600">state ball</b>, and the <b class="text-green-700">signal ball</b> stops once it reaches the output port.</p>
+                <p><b>CNOT with 1-bit of memory</b></p>
+                <p>This specific BBM configuration simulates a CNOT gate with 1-bit of memory. Here is the diagram and state table for the gate:</p>
+                <div class="flex flex-row">
+                    <img class="my-4 mx-auto" src="~/assets/images/cnot-rlem.drawio.png">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>a</th>
+                                <th>b</th>
+                                <th>a'</th>
+                                <th>b'</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>a</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>a'</td>
+                            </tr>
+                            <tr>
+                                <td>a</td>
+                                <td>1</td>
+                                <td>1</td>
+                                <td>a'</td>
+                            </tr>
+                            <tr>
+                                <td>b</td>
+                                <td>0</td>
+                                <td>1</td>
+                                <td>b'</td>
+                            </tr>
+                            <tr>
+                                <td>b</td>
+                                <td>1</td>
+                                <td>0</td>
+                                <td>b'</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p><b>Reversibility</b></p>
+                <p>Try running the computation in the forwards-direction. Once the <b class="text-green-700">signal ball</b> reaches the output, take note of the output</p>
+            </div>
+        </template>
+    </Lesson>
 </template>
 
 <script>
@@ -196,13 +257,12 @@ export default {
         }
     },
     mounted() {
-        this.stage = new this.$createjs.Stage("canvas")
-        // this.construct()
     },
     methods: {
         construct() {
             // TODO: validation
 
+            this.stage = new this.$createjs.Stage("canvas")
             this.stage.removeAllChildren()
 
             const grid = new this.$createjs.Container()
@@ -230,6 +290,7 @@ export default {
 
             // construct map
             for (const obj of this.reflectors) {
+                    // console.log("building ", obj)
                     const reflector = new this.$createjs.Shape()
                     
                     reflector.x = obj.x * CELL_SIZE
@@ -332,7 +393,6 @@ export default {
             {
                 const obj = new StateBall(this.initialState)
                 const stateBall = new this.$createjs.Shape()
-
 
                 const state = this.state_transitions[obj.initialState]
 
