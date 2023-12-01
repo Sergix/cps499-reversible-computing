@@ -1,7 +1,7 @@
 <template>
   <div>
-    <main class="relative flex flex-col justify-center align-middle min-h-screen py-4">
-      <progress ref="lessonprogress" class="w-full mt-2 rounded-full" :value="current_section - 1" :max="numSections"> {{ current_section }} / {{ numSections }} </progress>
+    <main class="z-0 relative flex flex-col justify-center align-middle min-h-screen py-4">
+      <progress ref="lessonprogress" class="w-full mt-2 rounded-full -z-10" :value="current_section - 1" :max="numSections"> {{ current_section }} / {{ numSections }} </progress>
       <section v-show="current_section <= numSections" id="lesson-content-section" ref="lessonsection" class="border border-neutral-900 rounded-lg p-8 my-2">
         <slot :name="current_section" :next="next"/>
       </section>
