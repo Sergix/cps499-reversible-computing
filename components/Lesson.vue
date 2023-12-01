@@ -2,17 +2,13 @@
   <div>
     <main class="relative flex flex-col justify-center align-middle min-h-screen py-4">
       <progress ref="lessonprogress" class="w-full mt-2 rounded-full" :value="current_section - 1" :max="numSections"> {{ current_section }} / {{ numSections }} </progress>
-      <transition name="fade">
-        <section v-show="current_section <= numSections" id="lesson-content-section" ref="lessonsection" class="border border-neutral-900 rounded-lg p-8 my-2">
-          <slot :name="current_section" :next="next"/>
-        </section>
-      </transition>
-      <transition name="fade">
-        <section v-show="current_section > numSections" class="my-4">
-          <h3 class="mb-8">Lesson complete!</h3>
-          <nuxt-link class="rounded bg-violet-500 px-6 py-4 text-3xl font-semibold font-sans text-blue-600 shadow" :to="`/${$store.getters.getNextLesson($route.name).page}`">Next Lesson: {{ $store.getters.getNextLesson($route.name).title }} →</nuxt-link>
-        </section>
-      </transition>
+      <section v-show="current_section <= numSections" id="lesson-content-section" ref="lessonsection" class="border border-neutral-900 rounded-lg p-8 my-2">
+        <slot :name="current_section" :next="next"/>
+      </section>
+      <section v-show="current_section > numSections" ref="completesection" class="my-4">
+        <h3 class="mb-8">Lesson complete!</h3>
+        <nuxt-link class="rounded bg-purple-400 px-6 py-4 text-3xl font-semibold font-sans text-blue-700 shadow" :to="`/${$store.getters.getNextLesson($route.name).page}`">Next Lesson: {{ $store.getters.getNextLesson($route.name).title }} →</nuxt-link>
+      </section>
       <transition name="fade">
         <button v-show="current_section > 1" class="ml-auto" @click="prev">PREV</button>
       </transition>
@@ -45,7 +41,17 @@ export default {
       // TODO: what if end of lesson?
       // - need to get next lesson from vuex
       if (this.current_section > this.numSections)
+      {
+        this.$refs.lessonsection.classList.add('slide-left')
+        setTimeout(() => {
+          this.current_section += 1
+          this.$refs.lessonsection.classList.remove('slide-left')
+
+          this.$refs.completesection.classList.add('slide-right')
+          setTimeout(() => this.$refs.completesection.classList.remove('slide-right'), 200)
+        }, 200)
         return
+      }
 
       // slide out
       this.$refs.lessonsection.classList.add('slide-left')
@@ -113,7 +119,7 @@ progress::-ms-fill {
 
 /* https://v2.vuejs.org/v2/guide/transitions */
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .2s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;

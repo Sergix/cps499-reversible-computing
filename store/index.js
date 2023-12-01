@@ -11,6 +11,10 @@ export const state = () => ({
         {
           title: "Why?",
           page: "intro"
+        },
+        {
+          title: "Logic",
+          page: "logic"
         }
       ]
     },
@@ -61,6 +65,9 @@ export const getters = {
 
     // if it's the last section or something else goes wrong, return an empty lesson by default
     return { title: '', page: '' }
+  },
+  sections: (state) => {
+    return Object.keys(state.sections)
   }
 }
   

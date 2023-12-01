@@ -55,12 +55,17 @@
 }
 
 .fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+  transition: opacity .2s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
 
 .highlighted {
-  @apply p-1 bg-yellow-300;
+  /* @apply p-1 bg-yellow-300; */
+  @apply font-display text-purple-600;
+}
+
+.citation {
+  @apply text-gray-500 text-sm mt-1;
 }
