@@ -7,7 +7,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'cps499-reversible-computing',
+    title: 'Reversible Computing',
     htmlAttrs: {
       lang: 'en',
     },
