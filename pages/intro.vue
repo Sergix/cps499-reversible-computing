@@ -60,7 +60,7 @@
             <p>Let's think about our addends as our <b>two inputs</b> and the number 4 as our <b>one output</b>. Now, when we add our extra information of one of our addends, we can define it as a <b>second output</b> just copying one of the inputs.</p>
             <p>Input: (x, y)</p>
             <p>Output: (x + y, x)</p>
-            <p>Defining a function to do so, <vue-mathjax formula="$$f(x, y) = (x + y, x)$$"></vue-mathjax>.</p>
+            <p>Defining a function to do so, <vue-mathjax formula="$$f(x, y) = (x + y, x)$$"></vue-mathjax></p>
             <p>Using this definition, if I gave you the output (5, 3), can you figure out what the other input <b>y</b> is?</p>
             <InputCheck hint="In this example, x + y = 5 and x = 3. Can you then substitute and solve for y?" answer="2" @success="next"></InputCheck>
         </template>

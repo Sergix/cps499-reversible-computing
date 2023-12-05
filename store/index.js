@@ -35,7 +35,7 @@ export const state = () => ({
       index: 3,
       lessons: [
         {
-          title: "Reversible Turing Machines",
+          title: "Reversible TM",
           page: "rtm"
         }
       ]

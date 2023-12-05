@@ -77,6 +77,10 @@ export default {
         }
     },
     mounted() {
+        // ensure overflow-hidden from home page is removed on navigate
+        document.body.style.overflow = 'initial';
+
+        // mobile view
         window.onload = window.onresize = (e) => {
             console.log(window.innerHeight, window.innerWidth)
             if (window.innerHeight < 640 || window.innerWidth < 1200 ) {

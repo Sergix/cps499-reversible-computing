@@ -30,7 +30,7 @@
             <button @click="next">NEXT</button>
             <p class="citation">[1] https://doi.org/10.1007/978-4-431-56606-9</p>
         </template>
-        <template #2>
+        <template #2="{ next }">
             <h3>BBM Simulation</h3>
             <h4>CNOT with 1 bit of memory</h4>
             <div class="flex flex-row my-4">
@@ -151,7 +151,7 @@
                 <p>Try it out and see for yourself!</p>
             </div>
 
-            <button v-show="stage !== null" @click="next">NEXT</button>
+            <button v-show="runOnce" @click="next">NEXT</button>
             <p class="italic text-sm text-gray-600">Run the model at least once to continue.</p>
         </template>
     </Lesson>
@@ -250,6 +250,7 @@ export default {
             initialState: 'H',
             input: 'n',
             stage: null,
+            runOnce: false,
             reflectors: [
                 new Reflector(6, 0, RB),
                 new Reflector(6, 2, RB),
@@ -491,6 +492,7 @@ export default {
                 signalBall.addEventListener("click", (event) => {
                     signalBall.vx = signalBall.initialVx
                     signalBall.vy = signalBall.initialVy
+                    this.runOnce = true
                 })
 
                 balls.push(signalBall)
