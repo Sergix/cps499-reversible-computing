@@ -30,6 +30,15 @@ export const state = () => ({
           page: "bbm"
         }
       ]
+    },
+    "Computation": {
+      index: 3,
+      lessons: [
+        {
+          title: "Reversible Turing Machines",
+          page: "rtm"
+        }
+      ]
     }
   },
   sectionTitle: "",

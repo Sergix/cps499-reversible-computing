@@ -44,7 +44,7 @@ export default {
     },
     methods: {
         check() {
-            if (this.input.toLowerCase() === this.answer) {
+            if (this.input.trim().toLowerCase() === this.answer) {
                 this.success = true
                 this.$emit('success')
             } else {

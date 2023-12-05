@@ -18,7 +18,8 @@ export default {
       { name: 'format-detection', content: 'telephone=no' },
     ],
     script: [
-      { src: 'https://code.createjs.com/1.0.0/easeljs.min.js' }
+      { src: 'https://code.createjs.com/1.0.0/easeljs.min.js' },
+      { src: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_HTML' }
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
   },
@@ -28,7 +29,8 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
-    '~/plugins/create.js'
+    '~/plugins/create.js',
+    '~/plugins/mathjax.js'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components

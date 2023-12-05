@@ -113,6 +113,7 @@ section {
 }
 
 #frame0-bg {
+  -webkit-animation: hue 3s infinite;
   animation: hue 3s infinite;
 }
 

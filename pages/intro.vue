@@ -23,7 +23,6 @@
         <template #2="{ next }">
             <h3>Is there a way to build a computer that generates no heat?</h3>
             <p>First off: <b>a device's heat generation will always be affected by electrical resistance.</b> This is the primary source of heat from a computer. So, we can continuously improve those electrical pathways to make them more and more efficient. However, there's an unexpected roadblock: even if we could build an extremely efficient, even 100% efficient, electrical resistor that conserves as much energy as physically possible, <i>the device would still generate heat</i>.</p>
-            <p>(include visualization)</p>
             <p>But why? If we could have a physically ideal electrical device that has perfect materials without any resistance, why would it still generate heat?</p>
             <p>This is the question posed by Raulph Landauer, a researcher for IBM, back in 1961. And his conclusion surprised everyone who realized its implications. But before the explanation...</p>
             <button @click="next">NEXT</button>
@@ -61,7 +60,7 @@
             <p>Let's think about our addends as our <b>two inputs</b> and the number 4 as our <b>one output</b>. Now, when we add our extra information of one of our addends, we can define it as a <b>second output</b> just copying one of the inputs.</p>
             <p>Input: (x, y)</p>
             <p>Output: (x + y, x)</p>
-            <p>Defining a function to do so, f(x, y) = (x + y, x).</p>
+            <p>Defining a function to do so, <vue-mathjax formula="$$f(x, y) = (x + y, x)$$"></vue-mathjax>.</p>
             <p>Using this definition, if I gave you the output (5, 3), can you figure out what the other input <b>y</b> is?</p>
             <InputCheck hint="In this example, x + y = 5 and x = 3. Can you then substitute and solve for y?" answer="2" @success="next"></InputCheck>
         </template>
@@ -69,7 +68,6 @@
             <h3>Knowing that extra information about x, you were able to solve correctly since there is only one possible solution for the input y.</h3>
             <h4>The insight: <span class="highlighted">to definitively know the original inputs of an operation, the output must be unique to the input.</span></h4>
             <p>This uniqueness of <i>outputs to inputs</i> is critical, and is mathematically called a <b>one-to-one</b> or <b>injective</b> function.</p>
-            <p class='math'></p>
             <button @click="next">OK, SO...</button>
         </template>
         <template #9="{ next }">

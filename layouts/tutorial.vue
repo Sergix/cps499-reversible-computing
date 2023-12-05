@@ -32,7 +32,7 @@
             </aside>
             <!-- section select -->
             <transition name="fade">
-                <ul v-if="select_section_toggled" class="list-none text-white z-30 absolute mt-16 pt-4 pl-10" @click="select_section_toggled = false">
+                <ul v-if="select_section_toggled" class="list-none text-white z-30 fixed mt-16 pt-4 pl-10" @click="select_section_toggled = false">
                     <nuxt-link :to="`/${$store.state.sections[sectionTitle].lessons[0].page}`" class="text-neutral-500 uppercase font-semibold">{{ sectionTitle }}</nuxt-link>
                     <li v-for="section in sections" v-show="section !== sectionTitle" :key="section">
                         <nuxt-link :to="`/${$store.state.sections[section].lessons[0].page}`" :class="section === sectionTitle ? 'text-neutral-500 uppercase font-semibold' : 'uppercase font-semibold'">{{ section }}</nuxt-link>
@@ -40,7 +40,7 @@
                 </ul>
             </transition>
             <transition name="fade">
-                <div v-show="select_section_toggled" ref="selectsectionshadow" class="absolute top-0 left-0 w-screen h-screen bg-black opacity-75 z-20"></div>
+                <div v-show="select_section_toggled" ref="selectsectionshadow" class="fixed top-0 left-0 w-screen h-screen bg-black opacity-90 z-20"></div>
             </transition>
             <Nuxt v-if="!mobile" class="tutorial z-0"/>
         </div>
@@ -128,6 +128,10 @@ export default {
     @apply font-semibold mt-2 text-xl;
 }
 
+.tutorial h5 {
+    @apply font-bold mt-2;
+}
+
 .tutorial p {
     @apply mt-2;
 }
@@ -160,6 +164,18 @@ export default {
 
 .tutorial table td, .tutorial table th {
     @apply border border-black text-center px-4;
+}
+
+.tutorial .MathJax_Display {
+    @apply my-2;
+}
+
+.tutorial span.inline > .MathJax_Display {
+    @apply !inline;
+}
+
+.tutorial aside {
+    @apply border border-l-2 border-y-0 border-r-0 border-gray-500 text-gray-700 pl-4 my-4;
 }
 
 /* from https://v2.vuejs.org/v2/guide/transitions#CSS-Transitions */
