@@ -46,6 +46,7 @@
       <div id="frame0-div" class="my-auto opacity-80 absolute h-screen left-0 top-0 p-16">
         <h3 class="font-display text-4xl">The science and math behind what's already changing the world.</h3>
         <p class="text-rose-500 font-semibold text-xl mt-4">[by Peyton McGinnis]</p>
+        <p class="text-rose-500 font-semibold text-xl"><a href="https://sergix.dev">[sergix.dev]</a></p>
       </div>
       <h1 class="font-display absolute">REVERSIBLE COMPUTING</h1>
     </section>
